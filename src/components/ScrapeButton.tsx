@@ -6,9 +6,19 @@ interface Props {
   onComplete?: () => void;
 }
 
+const scrapeEnabled = process.env.NEXT_PUBLIC_SCRAPE_ENABLED === 'true';
+
 export default function ScrapeButton({ venueId, onComplete }: Props) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+
+  if (!scrapeEnabled) {
+    return (
+      <div className="text-xs text-[#444] font-mono border border-[#222] rounded px-3 py-2">
+        Run <span className="text-[#4d65ff]">npm run scrape</span> locally to update data
+      </div>
+    );
+  }
 
   async function handleScrape() {
     setLoading(true);
@@ -20,17 +30,17 @@ export default function ScrapeButton({ venueId, onComplete }: Props) {
         body: JSON.stringify(venueId ? { venueId } : {}),
       });
       const data = await res.json();
-      if (Array.isArray(data)) {
+      if (data.error) {
+        setResult(`Error: ${data.error}`);
+      } else if (Array.isArray(data)) {
         const total = data.reduce((s: number, r: { eventsFound: number }) => s + r.eventsFound, 0);
         const sold = data.reduce((s: number, r: { soldOutFound: number }) => s + r.soldOutFound, 0);
         setResult(`Found ${total} events, ${sold} sold out`);
-      } else if (data.error) {
-        setResult(`Error: ${data.error}`);
       } else {
         setResult(`Found ${data.eventsFound} events, ${data.soldOutFound} sold out`);
       }
       onComplete?.();
-    } catch (e) {
+    } catch {
       setResult('Failed to run scrape');
     } finally {
       setLoading(false);
