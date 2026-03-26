@@ -1,0 +1,43 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Venue {
+  id        Int        @id @default(autoincrement())
+  name      String
+  url       String     @unique
+  city      String?
+  active    Boolean    @default(true)
+  events    Event[]
+  scrapeRuns ScrapeRun[]
+  createdAt DateTime   @default(now())
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  venue     Venue    @relation(fields: [venueId], references: [id])
+  venueId   Int
+  artist    String
+  date      DateTime
+  soldOut   Boolean  @default(false)
+  ticketUrl String?
+  scrapedAt DateTime @default(now())
+
+  @@unique([venueId, artist, date])
+}
+
+model ScrapeRun {
+  id           Int      @id @default(autoincrement())
+  venue        Venue    @relation(fields: [venueId], references: [id])
+  venueId      Int
+  status       String
+  eventsFound  Int      @default(0)
+  soldOutFound Int      @default(0)
+  error        String?
+  createdAt    DateTime @default(now())
+}
