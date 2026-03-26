@@ -32,6 +32,7 @@ export async function runScrapeForVenue(venueId: number) {
         },
         update: {
           soldOut: e.soldOut,
+          price: e.price ?? null,
           ticketUrl: e.ticketUrl,
           scrapedAt: new Date(),
         },
@@ -40,6 +41,7 @@ export async function runScrapeForVenue(venueId: number) {
           artist: e.artist,
           date: e.date,
           soldOut: e.soldOut,
+          price: e.price ?? null,
           ticketUrl: e.ticketUrl,
         },
       });

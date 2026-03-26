@@ -25,6 +25,7 @@ model Event {
   artist    String
   date      DateTime
   soldOut   Boolean  @default(false)
+  price     String?
   ticketUrl String?
   scrapedAt DateTime @default(now())
 
