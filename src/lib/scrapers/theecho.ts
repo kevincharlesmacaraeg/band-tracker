@@ -18,34 +18,26 @@ async function parseEvents(page: Page): Promise<RawEvent[]> {
   return page.evaluate(() => {
     const results: Array<{ artist: string; dateStr: string; soldOut: boolean; ticketUrl: string }> = [];
 
-    // The Echo / Echoplex event cards
-    const cards = document.querySelectorAll(
-      '[class*="EventCard"], [class*="event-card"], [class*="show-item"], article'
-    );
+    // The Echo uses Chakra UI cards
+    const cards = document.querySelectorAll('.chakra-card');
 
     cards.forEach((card) => {
-      const artistEl =
-        card.querySelector('h2, h3, h4, [class*="title"], [class*="artist"], [class*="name"]');
-      const dateEl =
-        card.querySelector('time, [class*="date"], [class*="Date"], [datetime]');
-      const soldOutEl =
-        card.querySelector('[class*="sold"], [class*="Sold"]');
+      const text = card.textContent ?? '';
+      const soldOut = text.toLowerCase().includes('sold out');
 
-      const text = card.textContent?.toLowerCase() ?? '';
-      const soldOut =
-        soldOutEl !== null ||
-        text.includes('sold out') ||
-        text.includes('sold-out');
+      // First meaningful text node / paragraph is the event title
+      const titleEl = card.querySelector('p, h2, h3, h4');
+      let artist = titleEl?.textContent?.trim() ?? '';
+      // Strip " - SOLD OUT" suffix from title
+      artist = artist.replace(/\s*[-–]\s*sold out\s*$/i, '').trim();
+
+      // Date text like "Thu26Mar"
+      const dateEl = card.querySelector('time, [class*="date"], [class*="Date"]');
+      const dateStr = dateEl?.textContent?.trim() ?? '';
 
       const ticketLink =
-        (card.querySelector('a[href*="ticket"], a[href*="bit.ly"], a[href*="etix"]') as HTMLAnchorElement | null)
+        (card.querySelector('a[href*="ticketmaster"], a[href*="etix"], a[href*="dice"], a[href*="eventbrite"], a[href*="ticket"]') as HTMLAnchorElement | null)
           ?.href ?? '';
-
-      const artist = artistEl?.textContent?.trim() ?? '';
-      const dateStr =
-        (dateEl as HTMLTimeElement | null)?.dateTime ??
-        dateEl?.textContent?.trim() ??
-        '';
 
       if (artist) {
         results.push({ artist, dateStr, soldOut, ticketUrl: ticketLink });
