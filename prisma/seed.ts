@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   const venues = [
     { name: 'The Echo / Echoplex', url: 'https://www.theecho.com', city: 'Los Angeles, CA' },
+    { name: 'The Wiltern', url: 'https://www.wiltern.com', city: 'Los Angeles, CA' },
   ];
 
   for (const v of venues) {

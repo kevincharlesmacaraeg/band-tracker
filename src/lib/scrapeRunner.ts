@@ -1,5 +1,5 @@
 import { prisma } from './db';
-import { SCRAPERS } from './scrapers/theecho';
+import { SCRAPERS } from './scrapers';
 
 export async function runScrapeForVenue(venueId: number) {
   const venue = await prisma.venue.findUnique({ where: { id: venueId } });

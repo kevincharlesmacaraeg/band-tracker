@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['playwright', '@prisma/client', 'prisma'],
+  experimental: {
+    serverComponentsExternalPackages: ['playwright', '@prisma/client', 'prisma'],
+  },
 };
 
 module.exports = nextConfig;
